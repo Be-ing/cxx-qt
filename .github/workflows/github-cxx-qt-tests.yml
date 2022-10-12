@@ -126,7 +126,7 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         components: clippy, rustfmt
-        toolchain: stable
+        toolchain: nightly
 
     - name: "Rust tools cache"
       uses: actions/cache@v2
@@ -207,6 +207,7 @@ jobs:
         RUSTC_WRAPPER: sccache
         CC: ${{ matrix.cc }}
         CXX: ${{ matrix.cxx }}
+        RUSTFLAGS: '-Z unstable-options'
     - name: "Build"
       run: cmake --build build --config Release --parallel 2
       working-directory: ${{ matrix.workspace }}

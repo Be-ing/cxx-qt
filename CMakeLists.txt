@@ -101,6 +101,7 @@ project(cxx_qt)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(Rust_TOOLCHAIN "nightly")
 
 include(CompilerCaching)
 

@@ -30,5 +30,5 @@ if(NOT Corrosion_FOUND)
 endif()
 
 set(CRATE qml-minimal-no-cmake)
-corrosion_import_crate(MANIFEST_PATH Cargo.toml CRATES ${CRATE})
+corrosion_import_crate(MANIFEST_PATH Cargo.toml CRATES ${CRATE} FLAGS "+nightly -Z unstable-options")
 corrosion_set_env_vars(${CRATE} "QMAKE=${QMAKE}")
