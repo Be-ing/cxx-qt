@@ -124,79 +124,79 @@ if(UNIX AND NOT APPLE)
     )
 endif()
 
-find_program(MEMORYCHECK_COMMAND valgrind)
-# Set our extra command options for valgrind
-# TODO: we need to come up with a better way to suppress "possibly lost" errors.
-# Suppression file doesn't work because there is a ton of mangled names that won't remain stable.
-set(MEMORYCHECK_COMMAND_OPTIONS --error-exitcode=1 --errors-for-leak-kinds=definite --leak-check=full --trace-children=yes --track-origins=yes --show-possibly-lost=no)
-# A suppressions file which silences errors from other libs like QtCore
-set(MEMORYCHECK_SUPPRESSIONS_FILE "${CMAKE_SOURCE_DIR}/valgrind_suppressions.txt")
+# find_program(MEMORYCHECK_COMMAND valgrind)
+# # Set our extra command options for valgrind
+# # TODO: we need to come up with a better way to suppress "possibly lost" errors.
+# # Suppression file doesn't work because there is a ton of mangled names that won't remain stable.
+# set(MEMORYCHECK_COMMAND_OPTIONS --error-exitcode=1 --errors-for-leak-kinds=definite --leak-check=full --trace-children=yes --track-origins=yes --show-possibly-lost=no)
+# # A suppressions file which silences errors from other libs like QtCore
+# set(MEMORYCHECK_SUPPRESSIONS_FILE "${CMAKE_SOURCE_DIR}/valgrind_suppressions.txt")
+#
+# # Enable testing (this needs to be called before subdirs are added to detect tests in them)
+# enable_testing()
+#
+# # Create helper method which adds a valgrind test with the given binary
+# function(add_valgrind_test NAME_WITH_PREFIX BINARY WORKING_DIRECTORY)
+#     add_test(NAME ${NAME_WITH_PREFIX}_valgrind
+#         COMMAND ${MEMORYCHECK_COMMAND} ${MEMORYCHECK_COMMAND_OPTIONS} --suppressions=${MEMORYCHECK_SUPPRESSIONS_FILE} --gen-suppressions=all ${BINARY}
+#         WORKING_DIRECTORY "${WORKING_DIRECTORY}"
+#     )
+# endfunction()
 
-# Enable testing (this needs to be called before subdirs are added to detect tests in them)
-enable_testing()
-
-# Create helper method which adds a valgrind test with the given binary
-function(add_valgrind_test NAME_WITH_PREFIX BINARY WORKING_DIRECTORY)
-    add_test(NAME ${NAME_WITH_PREFIX}_valgrind
-        COMMAND ${MEMORYCHECK_COMMAND} ${MEMORYCHECK_COMMAND_OPTIONS} --suppressions=${MEMORYCHECK_SUPPRESSIONS_FILE} --gen-suppressions=all ${BINARY}
-        WORKING_DIRECTORY "${WORKING_DIRECTORY}"
-    )
-endfunction()
-
-add_subdirectory(book)
+# add_subdirectory(book)
 add_subdirectory(examples)
 
-# QMAKE environment variable is needed by qt-build to ensure that Cargo
-# uses the same installation of Qt as CMake does.
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Test REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Test REQUIRED)
-get_target_property(QMAKE Qt${QT_VERSION_MAJOR}::qmake IMPORTED_LOCATION)
-set(CARGO_ENV "QMAKE=${QMAKE}")
-
-# Create helper method which adds relevent cargo tests for a given manifest
-function(add_test_cargo TEST_NAME_PREFIX MANIFEST_PATH ADD_DOCTESTS)
-    # Add cargo as a test
-    add_test(NAME ${TEST_NAME_PREFIX}_cargo_tests COMMAND cargo test --all-targets --manifest-path ${MANIFEST_PATH})
-    set_property(TEST ${TEST_NAME_PREFIX}_cargo_tests PROPERTY ENVIRONMENT ${CARGO_ENV})
-    # Check if we should enable doc tests
-    if (${ADD_DOCTESTS} STREQUAL "DOCTESTS_ON")
-        # Add cargo docs as a test
-        add_test(NAME ${TEST_NAME_PREFIX}_cargo_doc_tests COMMAND cargo test --doc --manifest-path ${MANIFEST_PATH})
-        set_property(TEST ${TEST_NAME_PREFIX}_cargo_doc_tests PROPERTY ENVIRONMENT ${CARGO_ENV})
-    endif()
-    # Add clippy as a test
-    add_test(NAME ${TEST_NAME_PREFIX}_cargo_clippy COMMAND cargo clippy --all-targets --manifest-path ${MANIFEST_PATH} -- -D warnings)
-    set_property(TEST ${TEST_NAME_PREFIX}_cargo_clippy PROPERTY ENVIRONMENT ${CARGO_ENV})
-    # Add rustfmt as a test
-    add_test(NAME ${TEST_NAME_PREFIX}_cargo_fmt COMMAND cargo fmt --manifest-path ${MANIFEST_PATH} -- --check)
-    set_property(TEST ${TEST_NAME_PREFIX}_cargo_fmt PROPERTY ENVIRONMENT ${CARGO_ENV})
-endfunction()
-
-# Add cargo tests for all our manifests
+# # QMAKE environment variable is needed by qt-build to ensure that Cargo
+# # uses the same installation of Qt as CMake does.
+# find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Test REQUIRED)
+# find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Test REQUIRED)
+# get_target_property(QMAKE Qt${QT_VERSION_MAJOR}::qmake IMPORTED_LOCATION)
+# set(CARGO_ENV "QMAKE=${QMAKE}")
 #
-# Note doctests are not supported on the staticlib in root
-add_test_cargo(cxx_qt "${CMAKE_CURRENT_SOURCE_DIR}/crates/cxx-qt/Cargo.toml" DOCTESTS_ON)
-add_test_cargo(cxx_qt_build "${CMAKE_CURRENT_SOURCE_DIR}/crates/cxx-qt-build/Cargo.toml" DOCTESTS_ON)
-add_test_cargo(cxx_qt_gen "${CMAKE_CURRENT_SOURCE_DIR}/crates/cxx-qt-gen/Cargo.toml" DOCTESTS_ON)
-add_test_cargo(cxx_qt_lib "${CMAKE_CURRENT_SOURCE_DIR}/crates/cxx-qt-lib/Cargo.toml" DOCTESTS_ON)
-
-# Ensure test inputs and outputs are formatted
-file(GLOB CXX_QT_GEN_TEST_INPUTS ${CMAKE_CURRENT_SOURCE_DIR}/crates/cxx-qt-gen/test_inputs/*.rs)
-file(GLOB CXX_QT_GEN_TEST_OUTPUTS ${CMAKE_CURRENT_SOURCE_DIR}/crates/cxx-qt-gen/test_outputs/*.rs)
-add_test(NAME cxx_qt_gen_test_inputs_gen COMMAND rustfmt --check ${CXX_QT_GEN_TEST_INPUTS})
-add_test(NAME cxx_qt_gen_test_outputs_gen COMMAND rustfmt --check ${CXX_QT_GEN_TEST_OUTPUTS})
-
-# QML example has add_test in it's CMakeLists, so just add the cargo tests here
-add_test_cargo(qt-build "${CMAKE_CURRENT_SOURCE_DIR}/crates/qt-build/Cargo.toml" DOCTESTS_ON)
-add_test_cargo(demo_threading "${CMAKE_CURRENT_SOURCE_DIR}/examples/demo_threading/rust/Cargo.toml" DOCTESTS_OFF)
-add_test_cargo(qml_features "${CMAKE_CURRENT_SOURCE_DIR}/examples/qml_features/rust/Cargo.toml" DOCTESTS_OFF)
-add_test_cargo(qml_extension_plugin "${CMAKE_CURRENT_SOURCE_DIR}/examples/qml_extension_plugin/plugin/rust/Cargo.toml" DOCTESTS_OFF)
-add_test_cargo(qml_minimal "${CMAKE_CURRENT_SOURCE_DIR}/examples/qml_minimal/rust/Cargo.toml" DOCTESTS_OFF)
-
-# Add test which scans for all .cpp and .h files in this project and runs clang-format
-add_test(NAME cpp_clang_format COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/clang_format_check.sh" "${CMAKE_CURRENT_SOURCE_DIR}")
-
-# Add test which checks all files have a valid license
-add_test(NAME reuse_lint COMMAND reuse lint)
-
-add_subdirectory(tests)
+# # Create helper method which adds relevent cargo tests for a given manifest
+# function(add_test_cargo TEST_NAME_PREFIX MANIFEST_PATH ADD_DOCTESTS)
+#     # Add cargo as a test
+#     add_test(NAME ${TEST_NAME_PREFIX}_cargo_tests COMMAND cargo test --all-targets --manifest-path ${MANIFEST_PATH})
+#     set_property(TEST ${TEST_NAME_PREFIX}_cargo_tests PROPERTY ENVIRONMENT ${CARGO_ENV})
+#     # Check if we should enable doc tests
+#     if (${ADD_DOCTESTS} STREQUAL "DOCTESTS_ON")
+#         # Add cargo docs as a test
+#         add_test(NAME ${TEST_NAME_PREFIX}_cargo_doc_tests COMMAND cargo test --doc --manifest-path ${MANIFEST_PATH})
+#         set_property(TEST ${TEST_NAME_PREFIX}_cargo_doc_tests PROPERTY ENVIRONMENT ${CARGO_ENV})
+#     endif()
+#     # Add clippy as a test
+#     add_test(NAME ${TEST_NAME_PREFIX}_cargo_clippy COMMAND cargo clippy --all-targets --manifest-path ${MANIFEST_PATH} -- -D warnings)
+#     set_property(TEST ${TEST_NAME_PREFIX}_cargo_clippy PROPERTY ENVIRONMENT ${CARGO_ENV})
+#     # Add rustfmt as a test
+#     add_test(NAME ${TEST_NAME_PREFIX}_cargo_fmt COMMAND cargo fmt --manifest-path ${MANIFEST_PATH} -- --check)
+#     set_property(TEST ${TEST_NAME_PREFIX}_cargo_fmt PROPERTY ENVIRONMENT ${CARGO_ENV})
+# endfunction()
+#
+# # Add cargo tests for all our manifests
+# #
+# # Note doctests are not supported on the staticlib in root
+# add_test_cargo(cxx_qt "${CMAKE_CURRENT_SOURCE_DIR}/crates/cxx-qt/Cargo.toml" DOCTESTS_ON)
+# add_test_cargo(cxx_qt_build "${CMAKE_CURRENT_SOURCE_DIR}/crates/cxx-qt-build/Cargo.toml" DOCTESTS_ON)
+# add_test_cargo(cxx_qt_gen "${CMAKE_CURRENT_SOURCE_DIR}/crates/cxx-qt-gen/Cargo.toml" DOCTESTS_ON)
+# add_test_cargo(cxx_qt_lib "${CMAKE_CURRENT_SOURCE_DIR}/crates/cxx-qt-lib/Cargo.toml" DOCTESTS_ON)
+#
+# # Ensure test inputs and outputs are formatted
+# file(GLOB CXX_QT_GEN_TEST_INPUTS ${CMAKE_CURRENT_SOURCE_DIR}/crates/cxx-qt-gen/test_inputs/*.rs)
+# file(GLOB CXX_QT_GEN_TEST_OUTPUTS ${CMAKE_CURRENT_SOURCE_DIR}/crates/cxx-qt-gen/test_outputs/*.rs)
+# add_test(NAME cxx_qt_gen_test_inputs_gen COMMAND rustfmt --check ${CXX_QT_GEN_TEST_INPUTS})
+# add_test(NAME cxx_qt_gen_test_outputs_gen COMMAND rustfmt --check ${CXX_QT_GEN_TEST_OUTPUTS})
+#
+# # QML example has add_test in it's CMakeLists, so just add the cargo tests here
+# add_test_cargo(qt-build "${CMAKE_CURRENT_SOURCE_DIR}/crates/qt-build/Cargo.toml" DOCTESTS_ON)
+# add_test_cargo(demo_threading "${CMAKE_CURRENT_SOURCE_DIR}/examples/demo_threading/rust/Cargo.toml" DOCTESTS_OFF)
+# add_test_cargo(qml_features "${CMAKE_CURRENT_SOURCE_DIR}/examples/qml_features/rust/Cargo.toml" DOCTESTS_OFF)
+# add_test_cargo(qml_extension_plugin "${CMAKE_CURRENT_SOURCE_DIR}/examples/qml_extension_plugin/plugin/rust/Cargo.toml" DOCTESTS_OFF)
+# add_test_cargo(qml_minimal "${CMAKE_CURRENT_SOURCE_DIR}/examples/qml_minimal/rust/Cargo.toml" DOCTESTS_OFF)
+#
+# # Add test which scans for all .cpp and .h files in this project and runs clang-format
+# add_test(NAME cpp_clang_format COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/clang_format_check.sh" "${CMAKE_CURRENT_SOURCE_DIR}")
+#
+# # Add test which checks all files have a valid license
+# add_test(NAME reuse_lint COMMAND reuse lint)
+#
+# add_subdirectory(tests)
