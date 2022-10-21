@@ -264,6 +264,7 @@ impl QtBuild {
                         lib.parse_libs_cflags(
                             &format!("Qt{}{}", self.version.major, qt_module),
                             link_args.as_bytes(),
+                            &pkg_config::Config::allowed_filenames(),
                             &pkg_config,
                         );
                     }
