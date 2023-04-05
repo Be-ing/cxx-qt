@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow associated constants, types and macro invocations within `impl qobject::T` blocks
 - Ensure that generated Rust code works when `#![deny(missing_docs)]` is enabled
 
+### Added
+
+- Support for choosing a custom parent class, this allows for deriving from `QQuickItem` classes
+
 ### Changed
 
 - Pretty-print errors messages when build script fails

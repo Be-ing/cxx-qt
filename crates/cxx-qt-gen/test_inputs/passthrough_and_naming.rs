@@ -79,7 +79,7 @@ pub mod ffi {
         include!(<QtCore/QStringListModel>);
     }
 
-    #[cxx_qt::qobject(base = "QStringListModel")]
+    #[cxx_qt::qobject(base = "QStringListModel", parent = "QQuickItem")]
     pub struct MyObject {
         #[qproperty]
         property_name: i32,

@@ -60,6 +60,7 @@ mod tests {
                     cxx_qt_thread_ident: "MyObjectCxxQtThread".to_owned(),
                     namespace_internals: "cxx_qt::my_object::cxx_qt_my_object".to_owned(),
                     base_class: "QStringListModel".to_owned(),
+                    parent_class: "QObject".to_owned(),
                     blocks: GeneratedCppQObjectBlocks {
                         metaobjects: vec![
                             "Q_PROPERTY(int count READ count WRITE setCount NOTIFY countChanged)".to_owned(),
@@ -158,6 +159,7 @@ mod tests {
                     cxx_qt_thread_ident: "FirstObjectCxxQtThread".to_owned(),
                     namespace_internals: "cxx_qt::cxx_qt_first_object".to_owned(),
                     base_class: "QStringListModel".to_owned(),
+                    parent_class: "QObject".to_owned(),
                     blocks: GeneratedCppQObjectBlocks {
                         metaobjects: vec![
                             "Q_PROPERTY(int longPropertyNameThatWrapsInClangFormat READ count WRITE setCount NOTIFY countChanged)"
@@ -195,6 +197,7 @@ mod tests {
                     cxx_qt_thread_ident: "SecondObjectCxxQtThread".to_owned(),
                     namespace_internals: "cxx_qt::cxx_qt_second_object".to_owned(),
                     base_class: "QStringListModel".to_owned(),
+                    parent_class: "QQuickItem".to_owned(),
                     blocks: GeneratedCppQObjectBlocks {
                         metaobjects: vec![
                             "Q_PROPERTY(int count READ count WRITE setCount NOTIFY countChanged)"
@@ -367,7 +370,7 @@ mod tests {
           Q_PROPERTY(int count READ count WRITE setCount NOTIFY countChanged)
 
         public:
-          explicit SecondObject(QObject* parent = nullptr);
+          explicit SecondObject(QQuickItem* parent = nullptr);
           ~SecondObject();
           SecondObjectRust const& unsafeRust() const;
           SecondObjectRust& unsafeRustMut();
@@ -611,7 +614,7 @@ mod tests {
 
         namespace cxx_qt {
 
-        SecondObject::SecondObject(QObject* parent)
+        SecondObject::SecondObject(QQuickItem* parent)
           : QStringListModel(parent)
           , m_rustObj(cxx_qt::cxx_qt_second_object::createRs())
           , m_rustObjMutex(::std::make_shared<::std::recursive_mutex>())

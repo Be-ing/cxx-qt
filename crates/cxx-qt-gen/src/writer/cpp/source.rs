@@ -24,7 +24,7 @@ fn qobjects_source(generated: &GeneratedCppBlocks) -> Vec<String> {
         formatdoc! { r#"
             {namespace_start}
 
-            {ident}::{ident}(QObject* parent)
+            {ident}::{ident}({parent_class}* parent)
               : {base_class}(parent)
               , m_rustObj({namespace_internals}::createRs())
               , m_rustObjMutex(::std::make_shared<::std::recursive_mutex>())
@@ -73,6 +73,7 @@ fn qobjects_source(generated: &GeneratedCppBlocks) -> Vec<String> {
         namespace_end = namespace_end,
         namespace_internals = qobject.namespace_internals,
         base_class = qobject.base_class,
+        parent_class = qobject.parent_class,
         rust_ident = qobject.rust_ident,
         methods = qobject.blocks.methods.iter().filter_map(pair_as_source).collect::<Vec<String>>().join("\n"),
         }

@@ -28,7 +28,7 @@ class MyObject : public QStringListModel
                setPropertyName NOTIFY propertyNameChanged)
 
 public:
-  explicit MyObject(QObject* parent = nullptr);
+  explicit MyObject(QQuickItem* parent = nullptr);
   ~MyObject();
   MyObjectRust const& unsafeRust() const;
   MyObjectRust& unsafeRustMut();

@@ -74,7 +74,7 @@ fn qobjects_header(generated: &GeneratedCppBlocks) -> Vec<String> {
               {metaobjects}
 
             public:
-              explicit {ident}(QObject* parent = nullptr);
+              explicit {ident}({parent_class}* parent = nullptr);
               ~{ident}();
               {rust_ident} const& unsafeRust() const;
               {rust_ident}& unsafeRustMut();
@@ -104,6 +104,7 @@ fn qobjects_header(generated: &GeneratedCppBlocks) -> Vec<String> {
         namespace_internals = qobject.namespace_internals,
         rust_ident = qobject.rust_ident,
         base_class = qobject.base_class,
+        parent_class = qobject.parent_class,
         metaobjects = qobject.blocks.metaobjects.join("\n  "),
         methods = create_block("public", &qobject.blocks.methods.iter().filter_map(pair_as_header).collect::<Vec<&str>>()),
         metatype = if generated.namespace.is_empty() {

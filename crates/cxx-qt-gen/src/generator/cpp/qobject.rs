@@ -65,6 +65,8 @@ pub struct GeneratedCppQObject {
     pub namespace_internals: String,
     /// Base class of the QObject
     pub base_class: String,
+    /// Parent class of the QObject
+    pub parent_class: String,
     /// The blocks of the QObject
     pub blocks: GeneratedCppQObjectBlocks,
 }
@@ -84,6 +86,10 @@ impl GeneratedCppQObject {
             namespace_internals: namespace_idents.internal,
             base_class: qobject
                 .base_class
+                .clone()
+                .unwrap_or_else(|| "QObject".to_string()),
+            parent_class: qobject
+                .parent_class
                 .clone()
                 .unwrap_or_else(|| "QObject".to_string()),
             blocks: GeneratedCppQObjectBlocks::from(qobject),
@@ -145,6 +151,7 @@ mod tests {
         assert_eq!(cpp.cxx_qt_thread_ident, "MyObjectCxxQtThread");
         assert_eq!(cpp.namespace_internals, "cxx_qt_my_object");
         assert_eq!(cpp.base_class, "QObject");
+        assert_eq!(cpp.parent_class, "QObject");
         assert_eq!(cpp.blocks.metaobjects.len(), 0);
     }
 
@@ -153,7 +160,7 @@ mod tests {
         let module: ItemMod = parse_quote! {
             #[cxx_qt::bridge(namespace = "cxx_qt")]
             mod ffi {
-                #[cxx_qt::qobject(base = "QStringListModel")]
+                #[cxx_qt::qobject(base = "QStringListModel", parent = "QQuickItem")]
                 pub struct MyObject;
             }
         };
@@ -166,6 +173,7 @@ mod tests {
         .unwrap();
         assert_eq!(cpp.namespace_internals, "cxx_qt::cxx_qt_my_object");
         assert_eq!(cpp.base_class, "QStringListModel");
+        assert_eq!(cpp.parent_class, "QQuickItem");
         assert_eq!(cpp.blocks.metaobjects.len(), 0);
     }
 

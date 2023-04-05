@@ -2,7 +2,7 @@
 
 namespace cxx_qt::multi_object {
 
-MyObject::MyObject(QObject* parent)
+MyObject::MyObject(QQuickItem* parent)
   : QStringListModel(parent)
   , m_rustObj(cxx_qt::multi_object::cxx_qt_my_object::createRs())
   , m_rustObjMutex(::std::make_shared<::std::recursive_mutex>())

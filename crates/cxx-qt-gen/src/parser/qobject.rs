@@ -36,6 +36,8 @@ pub struct QmlElementMetadata {
 pub struct ParsedQObject {
     /// The base class of the struct
     pub base_class: Option<String>,
+    /// The parent class of the struct
+    pub parent_class: Option<String>,
     /// QObject struct that stores the invokables for the QObject
     pub qobject_struct: ItemStruct,
     /// The namespace of the QObject. If one isn't specified for the QObject,
@@ -81,6 +83,11 @@ impl ParsedQObject {
             .get(&quote::format_ident!("base"))
             .map(|base| base.value());
 
+        // Find if there is any parent class
+        let parent_class = attrs_map
+            .get(&quote::format_ident!("parent"))
+            .map(|parent| parent.value());
+
         // Load the namespace, if it is empty then the ParsedCxxQtData will inject any global namespace
         let namespace = attrs_map
             .get(&quote::format_ident!("namespace"))
@@ -105,6 +112,7 @@ impl ParsedQObject {
 
         Ok(Self {
             base_class,
+            parent_class,
             qobject_struct,
             namespace,
             signals: None,
@@ -278,18 +286,20 @@ pub mod tests {
 
         let qobject = ParsedQObject::from_struct(&qobject_struct, 0).unwrap();
         assert!(qobject.base_class.is_none());
+        assert!(qobject.parent_class.is_none());
         assert!(qobject.qml_metadata.is_none());
     }
 
     #[test]
     fn test_from_struct_base_class() {
         let qobject_struct: ItemStruct = parse_quote! {
-            #[cxx_qt::qobject(base = "QStringListModel")]
+            #[cxx_qt::qobject(base = "QStringListModel", parent = "QQuickItem")]
             pub struct MyObject;
         };
 
         let qobject = ParsedQObject::from_struct(&qobject_struct, 0).unwrap();
         assert_eq!(qobject.base_class.as_ref().unwrap(), "QStringListModel");
+        assert_eq!(qobject.parent_class.as_ref().unwrap(), "QQuickItem");
     }
 
     #[test]
