@@ -48,19 +48,19 @@ fn extract_lib_from_filename<'a>(target: &str, filename: &'a str) -> Option<&'a 
         // the `lib` prefix from the filename. The `.a` suffix *requires* the `lib` prefix.
         // https://sourceware.org/binutils/docs-2.39/ld.html#index-direct-linking-to-a-dll
         if let Some(filename) = filename.strip_prefix(prefix) {
-            test_suffixes(filename, &[".dll.a", ".dll", ".lib", ".a"])
+            test_suffixes(filename, &[".dll.a", ".dll", ".lib", ".a", ".o"])
         } else {
-            test_suffixes(filename, &[".dll.a", ".dll", ".lib"])
+            test_suffixes(filename, &[".dll.a", ".dll", ".lib", ".o"])
         }
     } else if target.contains("apple") {
         if let Some(filename) = filename.strip_prefix(prefix) {
-            test_suffixes(filename, &[".a", ".so", ".dylib"])
+            test_suffixes(filename, &[".a", ".so", ".dylib", ".o"])
         } else {
             None
         }
     } else {
         if let Some(filename) = filename.strip_prefix(prefix) {
-            test_suffixes(filename, &[".a", ".so"])
+            test_suffixes(filename, &[".a", ".so", ".o"])
         } else {
             None
         }
@@ -169,11 +169,11 @@ pub(crate) fn parse_libs_cflags(name: &str, link_args: &[u8]) {
                         (path.parent(), path.file_name(), &target)
                     {
                         match extract_lib_from_filename(target, &file_name.to_string_lossy()) {
-                            Some(lib_basename) => {
+                            Some(_lib_basename) => {
                                 println!("cargo:rustc-link-search={}", dir.display());
-                                println!("cargo:rustc-link-lib={lib_basename}");
+                                println!("cargo:rustc-link-lib=+verbatim,{}", file_name.to_string_lossy());
                                 println!("cargo:warning=link-search={}", dir.display());
-                                println!("cargo:warning=link-lib={lib_basename}");
+                                println!("cargo:warning=link-lib={}", file_name.to_string_lossy());
                             }
                             None => {
                                 println!("cargo:warning=File path {} found in .prl file for {name}, but could not extract library base name to pass to linker command line", path.display());
