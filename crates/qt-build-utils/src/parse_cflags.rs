@@ -160,6 +160,7 @@ pub(crate) fn parse_libs_cflags(name: &str, link_args: &[u8]) {
             _ => {
                 let path = std::path::Path::new(part);
                 if path.is_file() {
+                    println!("cargo:warning=Linking file {}", path.display());
                     // Cargo doesn't have a means to directly specify a file path to link,
                     // so split up the path into the parent directory and library name.
                     // TODO: pass file path directly when link-arg library type is stabilized
@@ -171,6 +172,8 @@ pub(crate) fn parse_libs_cflags(name: &str, link_args: &[u8]) {
                             Some(lib_basename) => {
                                 println!("cargo:rustc-link-search={}", dir.display());
                                 println!("cargo:rustc-link-lib={lib_basename}");
+                                println!("cargo:warning=link-search={}", dir.display());
+                                println!("cargo:warning=link-lib={lib_basename}");
                             }
                             None => {
                                 println!("cargo:warning=File path {} found in .prl file for {name}, but could not extract library base name to pass to linker command line", path.display());
