@@ -354,7 +354,9 @@ impl QtBuild {
 
             match std::fs::read_to_string(&prl_path) {
                 Ok(prl) => {
+                    println!("cargo:warning=Reading {prl_path}:");
                     for line in prl.lines() {
+                        println!("cargo:warning={line}");
                         if let Some(line) = line.strip_prefix("QMAKE_PRL_LIBS = ") {
                             parse_cflags::parse_libs_cflags(
                                 &format!("Qt{}{qt_module}", self.version.major),
