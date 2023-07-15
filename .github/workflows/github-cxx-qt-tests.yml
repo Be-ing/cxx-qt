@@ -203,6 +203,7 @@ jobs:
     - name: "Configure"
       run: >-
         cmake
+        --log-level=DEBUG
         -D USE_QT5=${{ matrix.qt_version == 5 }}
         -D CMAKE_BUILD_TYPE=Release
         -G Ninja
