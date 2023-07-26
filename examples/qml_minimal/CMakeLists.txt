@@ -73,7 +73,8 @@ target_include_directories(${APP_NAME}_lib INTERFACE "${CXXQT_EXPORT_DIR}/${CRAT
 target_link_libraries(${APP_NAME}_lib INTERFACE
     # WHOLE_ARCHIVE is needed for the generated QML plugin to register on startup,
     # otherwise the linker will discard the static variables that initialize it.
-    "$<LINK_LIBRARY:WHOLE_ARCHIVE,${CRATE}-static>"
+    # "$<LINK_LIBRARY:WHOLE_ARCHIVE,${CRATE}-static>"
+    ${CRATE}
     Qt::Core
     Qt::Gui
     Qt::Qml
@@ -81,12 +82,25 @@ target_link_libraries(${APP_NAME}_lib INTERFACE
 )
 # ANCHOR_END: book_cmake_use_corrosion
 
+qt_standard_project_setup(REQUIRES 6.5)
+qt_add_qml_module(${APP_NAME}_qml
+    STATIC
+    URI "com.kdab.cxx_qt.demo"
+    VERSION 1.0
+    QML_FILES qml/main.qml
+    SOURCES
+    ${CMAKE_CURRENT_BINARY_DIR}/cxxqt/qml-minimal/cxx-qt-gen/qobject.cxxqt.h
+    ${CMAKE_CURRENT_BINARY_DIR}/cxxqt/qml-minimal/cxx-qt-gen/qobject.cxx.h
+)
+target_include_directories(${APP_NAME}_qml PUBLIC "${CXXQT_EXPORT_DIR}/${CRATE}")
+target_include_directories(${APP_NAME}_qml PUBLIC "${CXXQT_EXPORT_DIR}/${CRATE}/cxx-qt-gen")
+
 # ANCHOR: book_cmake_executable
 # Define the executable with the C++ source and Qt resource files
-add_executable(${APP_NAME} cpp/main.cpp qml/qml.qrc)
+add_executable(${APP_NAME} cpp/main.cpp)
 
 # Link to the Rust library
-target_link_libraries(${APP_NAME} PRIVATE ${APP_NAME}_lib)
+target_link_libraries(${APP_NAME} PRIVATE ${APP_NAME}_lib "$<LINK_LIBRARY:WHOLE_ARCHIVE,${APP_NAME}_qml>")
 
 # If we are using a statically linked Qt then we need to import any qml plugins
 qt_import_qml_plugins(${APP_NAME})
