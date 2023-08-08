@@ -10,9 +10,19 @@
 #include <QtGui/QGuiApplication>
 #include <QtQml/QQmlApplicationEngine>
 
+#include <QtQml/qqmlprivate.h>
+namespace QmlCacheGeneratedCode {
+namespace _qt_qml_com_kdab_cxx_qt_demo__0x2e__0x2e__qml_main_qml {
+  extern const QQmlPrivate::TypedFunction aotBuiltFunctions[];
+}
+}
+
 int
 main(int argc, char* argv[])
 {
+  const auto &aot = QmlCacheGeneratedCode::_qt_qml_com_kdab_cxx_qt_demo__0x2e__0x2e__qml_main_qml::aotBuiltFunctions[0];
+  Q_ASSERT(aot.functionPtr != nullptr);
+
   QGuiApplication app(argc, argv);
 
   QQmlApplicationEngine engine;
