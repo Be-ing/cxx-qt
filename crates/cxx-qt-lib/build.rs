@@ -289,6 +289,7 @@ fn main() {
     builder.flag_if_supported("/bigobj");
     // GCC + Clang
     builder.flag_if_supported("-std=c++17");
+    builder.flag_if_supported("-mmacosx-version-min=10.15");
     // MinGW requires big-obj otherwise debug builds fail
     builder.flag_if_supported("-Wa,-mbig-obj");
 
