@@ -245,7 +245,7 @@ jobs:
       # https://github.com/KDAB/cxx-qt/issues/121
       #
       # automake is needed for building libicu which is a dependency of Qt
-      run: brew install automake autoconf-archive ninja clang-format
+      run: brew install automake autoconf-archive ninja clang-format tree
 
     # Note that for nuget uploads to work this must be run as the kdab user
     # eg a branch on the kdab repo rather than a users fork
@@ -291,6 +291,9 @@ jobs:
       working-directory: ${{ matrix.workspace }}
       env:
         RUSTC_WRAPPER: sccache
+    - name: "tree"
+      run: tree build
+      if: runner.os == 'macOS'
     - name: "vtool"
       run: vtool -show-build build/examples/qml_features/example_qml_features
       if: runner.os == 'macOS'
