@@ -510,6 +510,7 @@ impl CxxQtBuilder {
             builder.flag_if_supported("-std=c++17");
             // MinGW requires big-obj otherwise debug builds fail
             builder.flag_if_supported("-Wa,-mbig-obj");
+            builder.flag_if_supported("-mmacosx-version-min=10.15");
             // Enable Qt Gui in C++ if the feature is enabled
             #[cfg(feature = "qt_gui")]
             builder.define("CXX_QT_GUI_FEATURE", None);
